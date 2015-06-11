@@ -1,7 +1,7 @@
 package util;
 
 public class MatChecker{
-	public static boolean isFinish(int[][] matr){
+	public static boolean isCompleted(int[][] matr){
 		for(int i=0;i<9;i++){
 			for(int j=0;j<9;j++){
 				if(matr[i][j]==0) return false;

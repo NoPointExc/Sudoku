@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,12 +17,17 @@ public class BlockView extends View {
     //vals
     private int[][] matr;
     private int[][] type; //1 for final, 0 for alter-able.
+    //mark
+    private boolean[] isRowMarked;
+    private boolean[] isColMarked;
+    private boolean[] isBloMarked;
+    private boolean indFlag = false; //indicate Flag, is true, should show position of wrong cell
     //pen
     private Paint blackpen;
     private Paint Blackpen;
     private Paint greenpen;
     private Paint graypen;
-    private Paint yellowpen;
+    private Paint Yellowpen;
     //size
     private int height = 50, width = 50;
     private int step;
@@ -50,7 +56,10 @@ public class BlockView extends View {
                 matr[i][j] = 0;
                 type[i][j] = 0;
             }
-
+        //init marks
+        isRowMarked = new boolean[9];
+        isColMarked = new boolean[9];
+        isBloMarked = new boolean[9];
         //init paint
         blackpen = new Paint();
         blackpen.setColor(Color.BLACK);
@@ -59,14 +68,14 @@ public class BlockView extends View {
         Blackpen.setColor(Color.BLACK);
         Blackpen.setStrokeWidth(6);
         greenpen = new Paint();
-        greenpen.setColor(Color.GREEN);
+        greenpen.setColor(Color.parseColor("#71C671"));
         greenpen.setTextSize(70);
         graypen = new Paint();
         graypen.setColor(Color.GRAY);
         graypen.setTextSize(70);
-        yellowpen = new Paint();
-        yellowpen.setColor(Color.YELLOW);
-        yellowpen.setStrokeWidth(3);
+        Yellowpen = new Paint();
+        Yellowpen.setColor(Color.parseColor("#CD0000"));
+        Yellowpen.setStrokeWidth(6);
         //listener
         this.setOnTouchListener(new myTouchLis());
     }
@@ -81,13 +90,12 @@ public class BlockView extends View {
                 case MotionEvent.ACTION_DOWN:
                     x = (int) event.getX();
                     y = (int) event.getY();
-                    System.out.println("!!!!!!!!!!!!!x:" + x + " y:" + y);
                     click(x, y);
                     break;
                 case MotionEvent.ACTION_OUTSIDE:
                     break;
             }
-            return false;
+            return true;
         }
     }
 
@@ -98,7 +106,7 @@ public class BlockView extends View {
         height = this.getMeasuredHeight();
         width = this.getMeasuredWidth();
         this.setMinimumHeight(width);
-        // lines
+        //draw lines
         step = width / 9;
         for (int i = 0; i < 10; i++) {
             if (i % 3 == 0) {
@@ -110,7 +118,24 @@ public class BlockView extends View {
             }
         }
 
-        //val
+        if(indFlag){
+            //draw indicate marks
+            for (int i = 0; i < 9; i++) {
+                //right margin 4
+                if (!isColMarked[i]) canvas.drawLine(4, i * step, 4, (i + 1) * step, Yellowpen);
+                if (!isRowMarked[i]) canvas.drawLine(i * step, 4, (i + 1) * step, 4, Yellowpen);
+                if(!isBloMarked[i]){
+                    //vertical line
+                    //canvas.drawLine(3 * (i + 1) * step, 3 * (i + 1) * step - step, 3 * (i + 1) * step, 3 * (i + 1) * step, Yellowpen);
+                    Rect rect=new Rect();
+                    int x=i%3,y=i/3;
+                    rect.set(x*3*step+step/2,y*3*step+step/2,(x+1)*3*step-step/2,(y+1)*3*step-step/2);
+                    canvas.drawRect(rect,Yellowpen);
+                }
+            }
+        }
+
+        //draw val
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
                 if (matr[i][j] == 0) continue; //empty block, draw nothing
@@ -134,6 +159,7 @@ public class BlockView extends View {
         }
 
     }
+
     /*
     * set a value in the matrix and invalidate the view
     * */
@@ -143,6 +169,7 @@ public class BlockView extends View {
         matr[x][y] = val;
         this.invalidate();
     }
+
     /*
     * click on value in the matrix
     *
@@ -152,14 +179,31 @@ public class BlockView extends View {
         System.out.println("i:" + i + "j" + j);
         if (i < 9 && j < 9) setVal(i, j, (matr[i][j] + 1) % 10);
     }
-
-    public boolean check(){
-        boolean[] row=MatChecker.checkRow(matr);
-        boolean[] col=MatChecker.checkRow(matr);
-        boolean[] block=MatChecker.checkBlock(matr);
-        for(int i=0;i<9;i++){
-            //unfish
+    /*
+    * check is the correct answer
+    * */
+    public boolean check() {
+        boolean correct = true;
+        boolean[] row = MatChecker.checkRow(matr);
+        boolean[] col = MatChecker.checkCol(matr);
+        boolean[] block = MatChecker.checkBlock(matr);
+        for (int i = 0; i < 9; i++) {
+            isRowMarked[i] = row[i];
+            isColMarked[i] = col[i];
+            isBloMarked[i] = block[i];
+            correct = correct && row[i] && col[i] && block[i];
         }
-        return MatChecker.isFinish(matr);
+        System.out.println("--ROW--");
+        MatChecker.print(isRowMarked);
+        System.out.println("--COL--");
+        MatChecker.print(isColMarked);
+        indFlag = MatChecker.isCompleted(matr);//not complete yet, should not indicate
+        this.invalidate();
+        return correct;
+    }
+
+    public void unCheck(){
+        indFlag=false;
+        this.invalidate();
     }
 }

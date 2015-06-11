@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
         titleText=(TextView)findViewById(R.id.title_text);
         //generate matrix and initial block view
         ans= MatGen.generat();
-        matr=MatGen.remove(60, ans);
+        matr=MatGen.remove(20, ans);
         blockView.setMatr(matr);
         blockView.invalidate();
         //set title TextView's onTouchListener
@@ -68,14 +68,17 @@ public class MainActivity extends Activity {
         public boolean onTouch(View v, MotionEvent event) {
             switch (event.getAction()){
                 case MotionEvent.ACTION_DOWN:
-
+                    blockView.check(); //return correct ans or not
+                    System.out.println("DOWN");
                     break;
                 case MotionEvent.ACTION_UP:
+                    blockView.unCheck();
+                    System.out.println("UP");
                     break;
             }
 
 
-            return false;
+            return true;
         }
     }
 
