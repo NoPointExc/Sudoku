@@ -31,7 +31,7 @@
         android:layout_marginRight="8dp"
         android:weightSum="1">
         <view.ClockView
-            android:id="@+id/time_text"
+            android:id="@+id/clockView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"

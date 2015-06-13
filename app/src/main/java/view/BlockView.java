@@ -15,19 +15,23 @@ import util.MatChecker;
 
 public class BlockView extends View {
     //vals
-    private int[][] matr;
-    private int[][] type; //1 for final, 0 for alter-able.
+    private static int[][] matr;
+    private static int[][] type; //1 for final, 0 for alter-able.
     //mark
     private boolean[] isRowMarked;
     private boolean[] isColMarked;
     private boolean[] isBloMarked;
     private boolean indFlag = false; //indicate Flag, is true, should show position of wrong cell
+    //Tint line and columns
+    private int tiLin=-1;
+    private int tiCol=-1;
     //pen
     private Paint blackpen;
     private Paint Blackpen;
     private Paint greenpen;
     private Paint graypen;
-    private Paint Yellowpen;
+    private Paint Redpen;
+    private Paint yelpen;
     //size
     private int height = 50, width = 50;
     private int step;
@@ -73,9 +77,12 @@ public class BlockView extends View {
         graypen = new Paint();
         graypen.setColor(Color.GRAY);
         graypen.setTextSize(70);
-        Yellowpen = new Paint();
-        Yellowpen.setColor(Color.parseColor("#CD0000"));
-        Yellowpen.setStrokeWidth(6);
+        Redpen = new Paint();
+        Redpen.setColor(Color.parseColor("#FF3300"));
+        Redpen.setStrokeWidth(6);
+        yelpen=new Paint();
+        yelpen.setColor(Color.parseColor("#FFE7BA"));
+        yelpen.setStrokeWidth(3);
         //listener
         this.setOnTouchListener(new myTouchLis());
     }
@@ -94,6 +101,9 @@ public class BlockView extends View {
                     break;
                 case MotionEvent.ACTION_OUTSIDE:
                     break;
+                case MotionEvent.ACTION_UP:
+                    release();
+                    break;
             }
             return true;
         }
@@ -106,6 +116,17 @@ public class BlockView extends View {
         height = this.getMeasuredHeight();
         width = this.getMeasuredWidth();
         this.setMinimumHeight(width);
+
+        //tint selected cell
+        if(tiLin!=-1){
+            Rect lineRec=new Rect();
+            lineRec.set(0, tiLin * step, width-5, (tiLin + 1) * step);
+            canvas.drawRect(lineRec, yelpen);
+            Rect colRec=new Rect();
+            colRec.set(tiCol*step,0,(tiCol+1)*step,width-5);
+            canvas.drawRect(colRec,yelpen);
+        }
+
         //draw lines
         step = width / 9;
         for (int i = 0; i < 10; i++) {
@@ -117,23 +138,24 @@ public class BlockView extends View {
                 canvas.drawLine(0, i * step, width, i * step, blackpen);
             }
         }
-
+        //draw indicate mark (indicate the wrong line/columns/block)
         if(indFlag){
             //draw indicate marks
             for (int i = 0; i < 9; i++) {
                 //right margin 4
-                if (!isColMarked[i]) canvas.drawLine(4, i * step, 4, (i + 1) * step, Yellowpen);
-                if (!isRowMarked[i]) canvas.drawLine(i * step, 4, (i + 1) * step, 4, Yellowpen);
+                if (!isColMarked[i]) canvas.drawLine(4, i * step, 4, (i + 1) * step, Redpen);
+                if (!isRowMarked[i]) canvas.drawLine(i * step, 4, (i + 1) * step, 4, Redpen);
                 if(!isBloMarked[i]){
                     //vertical line
                     //canvas.drawLine(3 * (i + 1) * step, 3 * (i + 1) * step - step, 3 * (i + 1) * step, 3 * (i + 1) * step, Yellowpen);
                     Rect rect=new Rect();
                     int x=i%3,y=i/3;
                     rect.set(x*3*step+step/2,y*3*step+step/2,(x+1)*3*step-step/2,(y+1)*3*step-step/2);
-                    canvas.drawRect(rect,Yellowpen);
+                    canvas.drawRect(rect,Redpen);
                 }
             }
         }
+
 
         //draw val
         for (int i = 0; i < 9; i++) {
@@ -176,9 +198,19 @@ public class BlockView extends View {
     * */
     public void click(int x, int y) {
         int i = x / step, j = y / step;
-        System.out.println("i:" + i + "j" + j);
+        tiLin=j; tiCol=i;
         if (i < 9 && j < 9) setVal(i, j, (matr[i][j] + 1) % 10);
     }
+    /*
+    * on click release, cancel mark on clicked cells
+    * */
+
+    private void release(){
+        tiCol=-1;
+        tiLin=-1;
+        invalidate();
+    }
+
     /*
     * check is the correct answer
     * */

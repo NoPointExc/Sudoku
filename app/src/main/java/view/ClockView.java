@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.TextView;
 
 import java.util.Timer;
@@ -17,8 +16,10 @@ import java.util.TimerTask;
 
 public class ClockView extends TextView {
     private static Handler handler;
-    private int time = 0;
-    private boolean isPause=false;
+    private  static int time = 0;
+    private  static boolean isPause=false;
+    private static Thread tickThread=null;
+
     public ClockView(Context context) {
         super(context);
         init();
@@ -38,18 +39,23 @@ public class ClockView extends TextView {
     *initial clock view
     * */
     private void init() {
-        this.setText("0:00:00");
+        if(isPause())this.setText("Paused");
+        else this.setText("0:00:00");
         handler=new Handler(){
             @Override
             public void handleMessage(Message msg) {
                 time=msg.what;
-                if(isPause&&!getText().equals("Paused")) {
+                if(isPause) {
                     setText("Paused");
                 }else update();
             }
         };
-        new Thread(new Ticktock()).start();
-        this.setOnClickListener(new mOnClickLis());
+        if(tickThread==null){
+            tickThread=new Thread(new Ticktock());
+            tickThread.start();
+        }
+
+
     }
 
     /*
@@ -68,6 +74,7 @@ public class ClockView extends TextView {
                 public void run() {
                     //max time is 7200s=2hr
                     if(!isPause) time = (time + 1) % 7200;
+                    System.out.println("time: "+time+" isPause:"+isPause);
                     handler.sendEmptyMessage(time);
                 }
             };
@@ -97,11 +104,18 @@ public class ClockView extends TextView {
         this.invalidate();
     }
 
-    class mOnClickLis implements OnClickListener {
-        @Override
-        public void onClick(View v) {
-            isPause=!isPause;
-        }
+
+
+    public void pause(){
+        isPause=true;
+
+    }
+    public void restart(){
+        isPause=false;
+    }
+
+    public boolean isPause(){
+        return isPause;
     }
 
 }

@@ -12,28 +12,58 @@ import android.widget.TextView;
 
 import util.MatGen;
 import view.BlockView;
+import view.ClockView;
 
 
 public class MainActivity extends Activity {
     private BlockView blockView;
     private TextView titleText; //title textview, touch to check matrix
+    private ClockView clockView;
 
-    private int[][] ans;
-    private int[][] matr;
+    private static int[][]  ans;
+    private static int[][]  matr;
+    //intinialized flag
+    private static boolean initFlag=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         blockView=(BlockView)findViewById(R.id.blockView);
         titleText=(TextView)findViewById(R.id.title_text);
+        clockView=(ClockView)findViewById(R.id.clockView);
         //generate matrix and initial block view
-        ans= MatGen.generat();
-        matr=MatGen.remove(20, ans);
+        System.out.println("initFlag:"+initFlag);
+        if(!initFlag){
+            initFlag=true;
+            System.out.println("initFlag:"+initFlag);
+            ans= MatGen.generat();
+            System.out.println("generate");
+            matr=MatGen.remove(20, ans);
+        }
+
         blockView.setMatr(matr);
         blockView.invalidate();
         //set title TextView's onTouchListener
         titleText.setOnTouchListener(new mOnTouchLis());
+        //set clock view on click listener
+        clockView.setOnClickListener(new clkOnClickLis());
     }
+
+
+    @Override
+    protected void onPause() {
+        clockView.pause();
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onStop() {
+        clockView.pause();
+        super.onStop();
+
+    }
+
 
 
     @Override
@@ -79,6 +109,15 @@ public class MainActivity extends Activity {
 
 
             return true;
+        }
+    }
+
+    class clkOnClickLis implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            if(!clockView.isPause()) clockView.pause();
+            else clockView.restart();
         }
     }
 
