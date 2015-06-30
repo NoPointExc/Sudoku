@@ -52,14 +52,8 @@ public class BlockView extends View {
     }
 
     private void init() {
-        //init matr
-        matr = new int[9][9];
-        type = new int[9][9];
-        for (int i = 0; i < 9; i++)
-            for (int j = 0; j < 9; j++) {
-                matr[i][j] = 0;
-                type[i][j] = 0;
-            }
+        matr=new int[9][9];
+        type=new int[9][9];
         //init marks
         isRowMarked = new boolean[9];
         isColMarked = new boolean[9];
@@ -83,31 +77,10 @@ public class BlockView extends View {
         yelpen=new Paint();
         yelpen.setColor(Color.parseColor("#FFE7BA"));
         yelpen.setStrokeWidth(3);
-        //listener
-        this.setOnTouchListener(new myTouchLis());
+
     }
 
-    class myTouchLis implements View.OnTouchListener {
-        int x = 0, y = 0;
 
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    x = (int) event.getX();
-                    y = (int) event.getY();
-                    click(x, y);
-                    break;
-                case MotionEvent.ACTION_OUTSIDE:
-                    break;
-                case MotionEvent.ACTION_UP:
-                    release();
-                    break;
-            }
-            return true;
-        }
-    }
 
     //invalidate()
     @Override
@@ -170,20 +143,28 @@ public class BlockView extends View {
         }
     }
 
-    public void setMatr(int[][] m) {
+    public void setMatr(int[][] m,int[][] t) {
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
                 this.matr[i][j] = m[i][j];
-                if (matr[i][j] != 0) {
-                    type[i][j] = 1;
-                }
+                System.out.println(m[i][j]);
+                this.type[i][j] = t[i][j];
             }
         }
+        this.invalidate();
+    }
 
+    public int[][] getMatr(){
+        return  matr;
+    }
+
+
+    public int[][] getType(){
+        return type;
     }
 
     /*
-    * set a value in the matrix and invalidate the view
+    set a value in the matrix and invalidate the view
     * */
     public void setVal(int x, int y, int val) {
 
@@ -205,7 +186,7 @@ public class BlockView extends View {
     * on click release, cancel mark on clicked cells
     * */
 
-    private void release(){
+    public void release(){
         tiCol=-1;
         tiLin=-1;
         invalidate();

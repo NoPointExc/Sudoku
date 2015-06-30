@@ -3,4 +3,10 @@
     <declare-styleable name="block">
         <attr name="val" format="integer"/>
     </declare-styleable>
+    <declare-styleable name="PullView" >
+        <attr name="pull_orien" format="enum">
+            <enum name="vertical" value="0"/>
+            <enum name="horizontal" value="1"/>
+        </attr>
+    </declare-styleable>
 </resources>

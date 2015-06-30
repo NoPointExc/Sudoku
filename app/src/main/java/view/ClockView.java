@@ -6,6 +6,8 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
+import com.game.edw.suduko.MainActivity;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -74,7 +76,7 @@ public class ClockView extends TextView {
                 public void run() {
                     //max time is 7200s=2hr
                     if(!isPause) time = (time + 1) % 7200;
-                    System.out.println("time: "+time+" isPause:"+isPause);
+                    //System.out.println("time: "+time+" isPause:"+isPause);
                     handler.sendEmptyMessage(time);
                 }
             };
@@ -108,7 +110,6 @@ public class ClockView extends TextView {
 
     public void pause(){
         isPause=true;
-
     }
     public void restart(){
         isPause=false;
