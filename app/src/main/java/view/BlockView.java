@@ -1,14 +1,16 @@
 package view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
 
+
+import com.game.edw.suduko.R;
 
 import util.MatChecker;
 
@@ -44,6 +46,8 @@ public class BlockView extends View {
     public BlockView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
+
+
     }
 
     public BlockView(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -52,6 +56,7 @@ public class BlockView extends View {
     }
 
     private void init() {
+
         matr=new int[9][9];
         type=new int[9][9];
         //init marks
@@ -88,6 +93,7 @@ public class BlockView extends View {
         //measure size
         height = this.getMeasuredHeight();
         width = this.getMeasuredWidth();
+        height=width;
         this.setMinimumHeight(width);
 
         //tint selected cell

@@ -112,7 +112,9 @@ public class ClockView extends TextView {
         isPause=true;
     }
     public void restart(){
+        time=0;
         isPause=false;
+
     }
 
     public boolean isPause(){

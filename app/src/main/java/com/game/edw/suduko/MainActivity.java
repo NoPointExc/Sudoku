@@ -10,7 +10,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import util.MatGen;
@@ -22,7 +25,10 @@ public class MainActivity extends Activity {
     private BlockView blockView;
     private TextView titleText; //title textview, touch to check matrix
     private ClockView clockView;
-
+    private TextView comText;
+    private Button submitBt;
+    //
+    private static int REMOVE_NUM=60;
     private static int[][]  ans;
     private static int[][]  matr;
     private static int[][] type;
@@ -39,6 +45,8 @@ public class MainActivity extends Activity {
         blockView=(BlockView)findViewById(R.id.blockView);
         titleText=(TextView)findViewById(R.id.title_text);
         clockView=(ClockView)findViewById(R.id.clockView);
+        comText=(EditText)findViewById(R.id.comEText);
+        submitBt=(Button)findViewById(R.id.submitBt);
         //generate matrix and initial block view
 
         //System.out.println("initFlag:" + initFlag);
@@ -47,7 +55,7 @@ public class MainActivity extends Activity {
             System.out.println("initFlag:"+initFlag);
             ans= MatGen.generat();
             System.out.println("generate");
-            matr=MatGen.remove(20, ans);
+            matr=MatGen.remove(REMOVE_NUM, ans);
             type=initType(matr);
         }
         blockView.setMatr(matr,type);
@@ -56,6 +64,8 @@ public class MainActivity extends Activity {
         titleText.setOnTouchListener(new mOnTouchLis(this));
         //set clock view on click listener
         clockView.setOnClickListener(new clkOnClickLis(this));
+
+
     }
 
     private int[][] initType(int[][] m){
@@ -133,7 +143,16 @@ public class MainActivity extends Activity {
                 case MotionEvent.ACTION_DOWN:
                     boolean correct=blockView.check();
                     if(correct){
-
+                        Animation fadeoff=AnimationUtils.loadAnimation(context,R.anim.fadeoff);
+                        Animation blowup=AnimationUtils.loadAnimation(context,R.anim.blowup);
+                        titleText.setTextColor(Color.GREEN);
+                        titleText.startAnimation(blowup);
+                        blockView.startAnimation(fadeoff);
+                        ans= MatGen.generat();
+                        matr=MatGen.remove(REMOVE_NUM, ans);
+                        type=initType(matr);
+                        blockView.setMatr(matr, type);
+                        clockView.restart();
                     }else {
                         Animation shark=AnimationUtils.loadAnimation(context,R.anim.shark);
 
@@ -171,6 +190,34 @@ public class MainActivity extends Activity {
                 pauseFlag=false;
             }
         }
+    }
+
+    public void submit(View v){
+        String info="invalid command";
+        String com=comText.getText().toString();
+        if(com.equalsIgnoreCase("restart")){
+            Animation fadeoff=AnimationUtils.loadAnimation(this,R.anim.fadeoff);
+            Animation blowup=AnimationUtils.loadAnimation(this,R.anim.blowup);
+            titleText.startAnimation(blowup);
+            blockView.startAnimation(fadeoff);
+            ans= MatGen.generat();
+            matr=MatGen.remove(REMOVE_NUM, ans);
+            type=initType(matr);
+            blockView.setMatr(matr,type);
+            clockView.restart();
+            info="restart";
+        }else if(com.length()>2&&com.substring(0,2).equalsIgnoreCase("rm")){
+            String rmNum=com.substring(2,com.length());
+            try{
+                int num=Integer.parseInt(rmNum);
+                if(num>0 &&num<81) REMOVE_NUM=num;
+                info="set remove number "+num;
+            }catch (NumberFormatException e){
+                info="wrong number formate";
+            }
+        }
+        Toast.makeText(this,info,Toast.LENGTH_LONG).show();
+        comText.setText("");
     }
 
 }
